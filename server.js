@@ -18,10 +18,14 @@ app.use(express.static("public"));
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workout", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useFindAndModify: false
+  useFindAndModify: false,
 });
 
 //HTML Routes
+app.get("/", (req, res) => {
+  res.sendFile("./public/index.html", { root: __dirname });
+});
+
 app.get("/exercise", (req, res) => {
   res.sendFile("./public/exercise.html", { root: __dirname });
 });
