@@ -1,9 +1,14 @@
 const router = require("express").Router();
+const Workout = require("../models/workout.js");
 
 router.get("/api/workouts", (req, res) => {
-  db.Workout.find({})
-    .then((dbWorkout) => {
-      res.json(dbWorkout);
+  Workout.aggregate([
+    {
+      $addFields: { totalDuration: { $sum: "$exercises.duration" } },
+    },
+  ])
+    .then((data) => {
+      res.json(data);
     })
     .catch((err) => {
       res.status(400).json(err);
@@ -11,9 +16,15 @@ router.get("/api/workouts", (req, res) => {
 });
 
 router.get("/api/workouts/range", ({}, res) => {
-  db.Workout.find({})
-    .then((dbWorkout) => {
-      res.json(dbWorkout);
+  Workout.aggregate([
+    {
+      $addFields: { totalDuration: { $sum: "$exercises.duration" } },
+    },
+  ])
+    .sort({ day: -1 })
+    .limit(7)
+    .then((data) => {
+      res.json(data.reverse()); // reverse the data so that it is back to oldest to newest
     })
     .catch((err) => {
       res.status(400).json(err);
@@ -21,7 +32,7 @@ router.get("/api/workouts/range", ({}, res) => {
 });
 
 router.post("/api/workouts/", (req, res) => {
-  db.Workout.create(req.body)
+  Workout.create(req.body)
     .then((dbWorkout) => {
       res.json(dbWorkout);
     })
@@ -31,7 +42,7 @@ router.post("/api/workouts/", (req, res) => {
 });
 
 router.put("/api/workouts/:id", (req, res) => {
-  db.Workout.findByIdAndUpdate({ _id: req.params.id }, { exercises: req.body })
+  Workout.findByIdAndUpdate({ _id: req.params.id }, { exercises: req.body })
     .then((dbWorkout) => {
       res.json(dbWorkout);
     })
@@ -39,3 +50,5 @@ router.put("/api/workouts/:id", (req, res) => {
       res.status(400).json(err);
     });
 });
+
+module.exports = router;
