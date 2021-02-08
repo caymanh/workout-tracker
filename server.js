@@ -21,11 +21,11 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workout", {
 
 //HTML Routes
 app.get("/exercise", (req, res) => {
-  res.sendFile("./public/exercise.html");
+  res.sendFile("./public/exercise.html", { root: __dirname });
 });
 
-app.get("/workout", (req, res) => {
-  res.sendFile("./public/stats.html");
+app.get("/stats", (req, res) => {
+  res.sendFile("./public/stats.html", { root: __dirname });
 });
 
 //API Routes
@@ -42,14 +42,14 @@ app.get("/api/workouts", (req, res) => {
 });
 
 app.get("/api/workouts/range", (req, res) => {
-	db.Workout.find({}, null, { sort: { day: 1 } })
-		.populate("exercises")
-		.then((dbWorkout) => {
-			res.json(dbWorkout);
-		})
-		.catch((err) => {
-			res.json(err);
-		});
+  db.Workout.find({}, null, { sort: { day: 1 } })
+    .populate("exercises")
+    .then((dbWorkout) => {
+      res.json(dbWorkout);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
 });
 
 app.put("/api/workouts/:id", (req, res) => {
@@ -71,13 +71,13 @@ app.put("/api/workouts/:id", (req, res) => {
 });
 
 app.post("/api/workouts", (req, res) => {
-	db.Workout.create(req.body)
-		.then((dbWorkout) => {
-			res.json(dbWorkout);
-		})
-		.catch((err) => {
-			res.json(err);
-		});
+  db.Workout.create(req.body)
+    .then((dbWorkout) => {
+      res.json(dbWorkout);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
 });
 
 app.listen(PORT, () => {
