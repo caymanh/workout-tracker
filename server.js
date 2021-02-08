@@ -22,9 +22,6 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workout", {
 });
 
 //HTML Routes
-app.get("/", (req, res) => {
-  res.sendFile("./public/index.html", { root: __dirname });
-});
 
 app.get("/exercise", (req, res) => {
   res.sendFile("./public/exercise.html", { root: __dirname });
@@ -37,52 +34,42 @@ app.get("/stats", (req, res) => {
 //API Routes
 
 app.get("/api/workouts", (req, res) => {
-  db.Workout.find({}, null, { sort: { day: 1 } })
-    .populate("exercises")
+  db.Workout.find({})
     .then((dbWorkout) => {
       res.json(dbWorkout);
     })
     .catch((err) => {
-      res.json(err);
+      res.status(400).json(err);
     });
 });
-
-app.get("/api/workouts/range", (req, res) => {
-  db.Workout.find({}, null, { sort: { day: 1 } })
-    .populate("exercises")
+// App.get to pull up info for the range page
+app.get("/api/workouts/range", ({}, res) => {
+  db.Workout.find({})
     .then((dbWorkout) => {
       res.json(dbWorkout);
     })
     .catch((err) => {
-      res.json(err);
+      res.status(400).json(err);
     });
 });
-
-app.put("/api/workouts/:id", (req, res) => {
-  var workoutID = req.params.id;
-  db.Exercise.create(req.body)
-    .then(({ _id }) =>
-      db.Workout.findOneAndUpdate(
-        { _id: workoutID },
-        { $push: { exercises: _id } },
-        { new: true }
-      )
-    )
-    .then((dbWorkout) => {
-      res.json(dbWorkout);
-    })
-    .catch((err) => {
-      res.json(err);
-    });
-});
-
-app.post("/api/workouts", (req, res) => {
+// App.post to submit new completed workouts
+app.post("/api/workouts/", (req, res) => {
   db.Workout.create(req.body)
     .then((dbWorkout) => {
       res.json(dbWorkout);
     })
     .catch((err) => {
-      res.json(err);
+      res.status(400).json(err);
+    });
+});
+// App.put to update workouts by MongoDB _id value and update the exercsise body
+app.put("/api/workouts/:id", (req, res) => {
+  db.Workout.findByIdAndUpdate({ _id: req.params.id }, { exercises: req.body })
+    .then((dbWorkout) => {
+      res.json(dbWorkout);
+    })
+    .catch((err) => {
+      res.status(400).json(err);
     });
 });
 
